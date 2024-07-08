@@ -14,7 +14,7 @@
     nixosModules.peter-nvim = import ./default.nix;
     packages.default = pkgs.symlinkJoin {
       name = "my-neovim-config";
-      path = [ "./" ];
+      paths = [ "./" ];
     };
   };
 }
