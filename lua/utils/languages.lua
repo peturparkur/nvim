@@ -59,17 +59,17 @@ local Languages = {
   },
   ['rust'] = {
     rust_analyzer = {
-      alias = 'rust-analyzer',
+      cmd = 'rust-analyzer',
     },
   },
   ['markdown'] = {
     markdown_oxide = {
-      alias = 'markdown-oxide',
+      cmd = 'markdown-oxide',
     },
   },
   ['nix'] = {
     ['nil_ls'] = {
-      alias = 'nil',
+      cmd = 'nil',
     },
     nixd = {
       settings = {
@@ -94,15 +94,15 @@ local Languages = {
   },
   ['bash'] = {
     bashls = {
-      alias = 'bash-language-server',
+      cmd = 'bash-language-server',
     },
   },
   ['docker'] = {
     dockerls = {
-      alias = 'docker-langserver',
+      cmd = 'docker-langserver',
     },
     docker_compose_language_service = {
-      alias = 'docker-compose-langserver',
+      cmd = 'docker-compose-langserver',
     },
   },
   ['lua'] = {
@@ -110,7 +110,7 @@ local Languages = {
       -- cmd = {...},
       -- filetypes = { ...},
       -- capabilities = {},
-      alias = 'lua-language-server',
+      cmd = 'lua-language-server',
       settings = {
         Lua = {
           completion = {
