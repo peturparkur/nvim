@@ -230,13 +230,15 @@ return {
       -- Then we guarantee use or install the LSPs
       local languages = require('utils.profile').Languages()
       local languageServers = require 'utils.languages'
-      local tmpTable = {}
+      local tmpTable = {} -- <nvim_ls_name> -> {<configuration>}
       for _, lang in ipairs(languages) do
         for lsp, config in pairs(languageServers[lang]) do
           tmpTable[lsp] = config
         end
       end
+      print(vim.inspect(tmpTable))
       require('utils.mason').install(tmpTable, true)
+
       local lsp = require 'lspconfig'
       for server, config in pairs(tmpTable) do
         config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
