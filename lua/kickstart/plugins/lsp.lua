@@ -282,7 +282,7 @@ return {
           tmpTable[lsp] = config
         end
       end
-      require('utils.mason').install(tmpTable, false)
+      require('utils.mason').install(tmpTable, true)
       local lsp = require 'lspconfig'
       for server, config in pairs(tmpTable) do
         config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
