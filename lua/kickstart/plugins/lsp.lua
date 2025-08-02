@@ -282,11 +282,11 @@ return {
           tmpTable[lsp] = config
         end
       end
-      require('utils.mason').install(tmpTable, true)
+      require('utils.mason').install(tmpTable, false)
       local lsp = require 'lspconfig'
       for server, config in pairs(tmpTable) do
         config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
-        config.on_attach = on_attach
+        -- config.on_attach = on_attach -- we don't need this because of the events
         lsp[server].setup(config)
       end
 
@@ -318,7 +318,8 @@ return {
   -- Shows where you are in the file LSP wise (which class/function etc)
   {
     'ray-x/lsp_signature.nvim',
-    event = 'VeryLazy',
+    -- event = 'VeryLazy',
+    event = 'InsertEnter',
     config = function(_, opts)
       require('lsp_signature').setup(opts)
     end,
