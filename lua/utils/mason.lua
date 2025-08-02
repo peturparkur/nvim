@@ -34,10 +34,17 @@ M.install = function(ensure_installed, enforce_local)
   registry.refresh(function()
     for pkg_name, config in pairs(ensure_installed) do
       local key = pkg_name
+      -- most of the times the binary of the nvim_lsp config is independent of the name of the config
+      -- key represents the name of the binary/cli command that we check for in the PATH
       if config['alias'] then
         key = config['alias']
       end
       if (not executable_exists(key)) and not enforce_local then
+        -- sometimes the LSP has a different name in Mason and nvim_ls config
+        -- we use config[mason] to set the pkg Mason should look for in these cases
+        if config['mason'] then
+          pkg_name = config['mason']
+        end
         local pkg = registry.get_package(pkg_name)
         if not pkg:is_installed() then
           pkg:install()

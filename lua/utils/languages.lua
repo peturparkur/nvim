@@ -98,11 +98,16 @@ local Languages = {
     },
   },
   ['docker'] = {
-    dockerls = {
-      alias = 'docker-langserver',
+    -- dockerls = {
+    --   alias = 'docker-langserver',
+    -- },
+    docker_language_server = {
+      alias = 'docker-language-server',
+      mason = 'dockerfile-language-server',
     },
     docker_compose_language_service = {
       alias = 'docker-compose-langserver',
+      mason = 'docker-compose-language-service',
     },
   },
   ['lua'] = {
