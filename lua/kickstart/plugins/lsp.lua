@@ -17,8 +17,8 @@ return {
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
-      'williamboman/mason-lspconfig.nvim',
+      { 'mason-org/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+      'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
@@ -224,41 +224,28 @@ return {
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
       --   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+
       -- INFO: Using my own utils function instead of mason-lspconfig as it checks if the stuff is already installed
       -- outside of mason. This is useful for NixOS setup where mason version just doesn't work sometimes due to libc issues.
-
       -- We take the languages configured for a given profile
       -- Given the profile we take the LSPs configured for the languages
       -- Then we guarantee use or install the LSPs
-      local languages = require('utils.profile').Languages()
-      local languageServers = require 'utils.languages'
-      local tmpTable = {} -- <nvim_ls_name> -> {<configuration>}
-      for _, lang in ipairs(languages) do
-        for lsp, config in pairs(languageServers[lang]) do
-          tmpTable[lsp] = config
-        end
-      end
-      require('utils.mason').install(tmpTable, true)
+      local lsps = require('utils.profile').LanguageServers()
+      -- print(vim.inspect(lsps))
+      local missing_lsps = require('utils.mason').missing(lsps) -- find missing lsps
+      -- print(vim.inspect(missing_lsps))
+      missing_lsps = {} -- TODO: this is only for NixOS to prefer installing via nixpkgs instead of mason
 
-      local lsp = require 'lspconfig'
-      for server, config in pairs(tmpTable) do
+      -- install the executables of the language servers that we don't already have installed locally outside of mason
+      require('utils.mason').install(missing_lsps)
+
+      -- configure nvim lsp via lspconfig package for our list of lsps
+      local lspconfig = require 'lspconfig'
+      for server, config in pairs(lsps) do
         config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
         -- config.on_attach = on_attach -- we don't need this because of the events
-        lsp[server].setup(config)
+        lspconfig[server].setup(config)
       end
-
-      -- require('mason-lspconfig').setup {
-      --   handlers = {
-      --     function(server_name)
-      --       local server = servers[server_name] or {}
-      --       -- This handles overriding only values explicitly passed
-      --       -- by the server configuration above. Useful when disabling
-      --       -- certain features of an LSP (for example, turning off formatting for tsserver)
-      --       server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-      --       require('lspconfig')[server_name].setup(server)
-      --     end,
-      --   },
-      -- }
     end,
   },
   -- Show LSP explorer of functions and classes etc.

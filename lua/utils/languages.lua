@@ -100,17 +100,14 @@ local Languages = {
   ['docker'] = {
     dockerls = {
       alias = 'docker-langserver',
-      mason = 'dockerfile-language-server',
     },
     docker_compose_language_service = {
       alias = 'docker-compose-langserver',
-      mason = 'docker-compose-language-service',
     },
   },
   ['yaml'] = {
     yamlls = {
       alias = 'yaml-language-server',
-      mason = 'yaml-language-server',
       settings = {
         yaml = {
           schemas = {
