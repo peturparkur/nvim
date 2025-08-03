@@ -262,8 +262,7 @@ return {
   -- Shows where you are in the file LSP wise (which class/function etc)
   {
     'ray-x/lsp_signature.nvim',
-    -- event = 'VeryLazy',
-    event = 'InsertEnter',
+    event = 'VeryLazy',
     config = function(_, opts)
       require('lsp_signature').setup(opts)
     end,
