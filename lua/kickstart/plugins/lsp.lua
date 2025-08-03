@@ -236,7 +236,6 @@ return {
           tmpTable[lsp] = config
         end
       end
-      print(vim.inspect(tmpTable))
       require('utils.mason').install(tmpTable, true)
 
       local lsp = require 'lspconfig'
