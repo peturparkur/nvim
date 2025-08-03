@@ -176,14 +176,16 @@ return {
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
         underline = { severity = vim.diagnostic.severity.ERROR },
-        signs = vim.g.have_nerd_font and {
-          text = {
-            [vim.diagnostic.severity.ERROR] = '󰅚 ',
-            [vim.diagnostic.severity.WARN] = '󰀪 ',
-            [vim.diagnostic.severity.INFO] = '󰋽 ',
-            [vim.diagnostic.severity.HINT] = '󰌶 ',
-          },
-        } or {},
+        signs = vim.g.have_nerd_font
+            and {
+              text = {
+                [vim.diagnostic.severity.ERROR] = '󰅚 ', -- circle with cross
+                [vim.diagnostic.severity.WARN] = '󰀪 ', -- triangle warning
+                [vim.diagnostic.severity.INFO] = '󰋽 ', -- circle with i
+                [vim.diagnostic.severity.HINT] = '󰌶 ', -- lightbulb
+              },
+            }
+          or {},
         virtual_text = {
           source = 'if_many',
           spacing = 2,
