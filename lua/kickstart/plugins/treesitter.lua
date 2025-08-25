@@ -16,9 +16,9 @@ return { -- Highlight, edit, and navigate code
   },
   config = function(_, opts)
     -- fold method to be function / treesitter
-    vim.o.foldmethod = 'expr'
+    -- vim.o.foldmethod = 'expr'
     -- Default to treesitter folding
-    vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    -- vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
     -- vim.o.foldenable = false
     vim.opt.foldnestmax = 4
     vim.opt.foldlevel = 99
