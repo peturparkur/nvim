@@ -9,6 +9,7 @@ local PROFILES = {
     'docker',
     'lua',
     'yaml',
+    'cpp',
   },
   ['DEFAULT'] = {
     'python',
@@ -17,6 +18,7 @@ local PROFILES = {
     'docker',
     'lua',
     'yaml',
+    'cpp',
   },
 }
 
