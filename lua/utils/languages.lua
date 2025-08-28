@@ -9,6 +9,7 @@
 --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 local Languages = {
   ['python'] = {
+    -- pyrefly = {},
     pyright = {
       settings = {
         python = {
@@ -148,6 +149,9 @@ local Languages = {
         Lua = {
           completion = {
             callSnippet = 'Replace',
+          },
+          hint = {
+            enable = true,
           },
           -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
           -- diagnostics = { disable = { 'missing-fields' } },
