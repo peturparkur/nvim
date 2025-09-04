@@ -95,6 +95,7 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'debugpy', -- this didn't work -> TODO: automate installation with same mason helper as LSP installer
       },
     }
 
