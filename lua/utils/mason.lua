@@ -27,26 +27,49 @@ M.missing = function(ensure_installed)
   return result
 end
 
--- We guarantee 'ensure_installed' package is installed locally
--- If enforce_local is false then we install it via mason-registry
--- By default we install LSPs via mason
-M.install = function(ensure_installed)
-  -- ensure installed is expected of the form <lspname>: {cmd: "", settings: {...}}
-
-  -- ensure_installed = M.missing(ensure_installed, enforce_local)
-  local lspconfig_to_pkg = require('mason-lspconfig').get_mappings().lspconfig_to_package
-
+---comment
+---@param ensure_installed table<string, table>
+M.install_packages = function(ensure_installed)
   local registry = require 'mason-registry'
-  -- local mason_lspconfig = require 'mason-lspconfig'
   registry.refresh(function()
-    for lsp_cfg, _ in pairs(ensure_installed) do
-      local pkg_name = lspconfig_to_pkg[lsp_cfg] -- get mason package name based on lspconfig name
-      local pkg = registry.get_package(pkg_name)
+    for package, _ in pairs(ensure_installed) do
+      local pkg = registry.get_package(package)
       if not pkg:is_installed() then
         pkg:install()
       end
     end
   end)
+end
+
+---comment
+---@param ensure_installed table<string, table>
+M.install_dap = function(ensure_installed)
+  -- ensure installed is expected of the form <lspname>: {cmd: "", settings: {...}}
+
+  -- ensure_installed = M.missing(ensure_installed, enforce_local)
+  local source_mappings = require('mason-nvim-dap.mappings.source').nvim_dap_to_package
+  local packages = {}
+  for lsp_cfg, v in pairs(ensure_installed) do
+    packages[source_mappings[lsp_cfg]] = v
+  end
+  M.install_packages(packages)
+end
+
+-- We guarantee 'ensure_installed' package is installed locally
+-- If enforce_local is false then we install it via mason-registry
+-- By default we install LSPs via mason
+---comment
+---@param ensure_installed table<string, table>
+M.install_lsp = function(ensure_installed)
+  -- ensure installed is expected of the form <lspname>: {cmd: "", settings: {...}}
+
+  -- ensure_installed = M.missing(ensure_installed, enforce_local)
+  local lspconfig_to_pkg = require('mason-lspconfig').get_mappings().lspconfig_to_package
+  local packages = {}
+  for lsp_cfg, v in pairs(ensure_installed) do
+    packages[lspconfig_to_pkg[lsp_cfg]] = v
+  end
+  M.install_packages(packages)
 end
 
 return M

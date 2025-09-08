@@ -81,10 +81,14 @@ return {
     local dap = require 'dap'
     local dapui = require 'dapui'
 
+    local ensure_installed = { ['delve'] = nil, ['debugpy'] = nil }
+    local mutils = require 'utils.mason'
+    mutils.install_dap(mutils.missing(ensure_installed))
+
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
-      automatic_installation = true,
+      automatic_installation = false,
 
       -- You can provide additional configuration to the handlers,
       -- see mason-nvim-dap README for more information
@@ -92,11 +96,7 @@ return {
 
       -- You'll need to check that you have the required things installed
       -- online, please don't ask me how to install them :)
-      ensure_installed = {
-        -- Update this to ensure that you have the debuggers for the langs you want
-        'delve',
-        'debugpy', -- this didn't work -> TODO: automate installation with same mason helper as LSP installer
-      },
+      ensure_installed = ensure_installed,
     }
 
     -- Dap UI setup

@@ -254,7 +254,7 @@ return {
       missing_lsps = {} -- TODO: this is only for NixOS to prefer installing via nixpkgs instead of mason
 
       -- install the executables of the language servers that we don't already have installed locally outside of mason
-      require('utils.mason').install(missing_lsps)
+      require('utils.mason').install_lsp(missing_lsps)
 
       -- configure nvim lsp via lspconfig package for our list of lsps
       -- local lspconfig = require 'lspconfig'
