@@ -81,14 +81,15 @@ return {
     local dap = require 'dap'
     local dapui = require 'dapui'
 
-    local ensure_installed = { ['delve'] = nil, ['debugpy'] = nil }
+    local ensure_installed = { ['delve'] = nil, ['python'] = nil }
     local mutils = require 'utils.mason'
+    print(vim.inspect(ensure_installed))
     mutils.install_dap(mutils.missing(ensure_installed))
 
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
-      automatic_installation = false,
+      automatic_installation = true,
 
       -- You can provide additional configuration to the handlers,
       -- see mason-nvim-dap README for more information
