@@ -1,5 +1,3 @@
--- debug.lua
---
 -- Shows how to use the DAP plugin to debug your code.
 --
 -- Primarily focused on configuring the debugger for Go, but can
@@ -78,28 +76,58 @@ return {
     },
   },
   config = function()
+    print 'hello!'
+    vim.notify('HELLO!', vim.log.levels.WARN, nil)
     local dap = require 'dap'
-    local dapui = require 'dapui'
 
-    local ensure_installed = { ['delve'] = nil, ['python'] = nil }
+    local ensure_installed = { ['delve'] = {}, ['python'] = {} }
     local mutils = require 'utils.mason'
-    print(vim.inspect(ensure_installed))
+    print('ensure installed: ', vim.inspect(ensure_installed))
     mutils.install_dap(mutils.missing(ensure_installed))
 
-    require('mason-nvim-dap').setup {
-      -- Makes a best effort to setup the various debuggers with
-      -- reasonable debug configurations
-      automatic_installation = true,
+    require 'kickstart.plugins.dap.adapters.python'()
 
-      -- You can provide additional configuration to the handlers,
-      -- see mason-nvim-dap README for more information
-      handlers = {},
+    -- require('mason-nvim-dap').setup {
+    --   ensure_installed = {}, --{ 'delve', 'python', 'debugpy' },
+    --   automatic_installation = false,
+    --   handlers = {
+    --     function(config)
+    --       -- all sources with no handler get passed here
+    --
+    --       -- Keep original functionality
+    --       require('mason-nvim-dap').default_setup(config)
+    --     end,
+    --     python = function(config)
+    --       print('test', vim.inspect { test = {} })
+    --       -- config.adapters = {
+    --       --   type = 'executable',
+    --       --   command = '/usr/bin/python3',
+    --       --   args = {
+    --       --     '-m',
+    --       --     'debugpy.adapter',
+    --       --   },
+    --       -- }
+    --       print(vim.inspect(config))
+    --       require('mason-nvim-dap').default_setup(config) -- don't forget this!
+    --     end,
+    --   },
+    -- }
 
-      -- You'll need to check that you have the required things installed
-      -- online, please don't ask me how to install them :)
-      ensure_installed = ensure_installed,
-    }
+    -- require('mason-nvim-dap').setup {
+    --   -- Makes a best effort to setup the various debuggers with
+    --   -- reasonable debug configurations
+    --   automatic_installation = true,
+    --
+    --   -- You can provide additional configuration to the handlers,
+    --   -- see mason-nvim-dap README for more information
+    --   handlers = {},
+    --
+    --   -- You'll need to check that you have the required things installed
+    --   -- online, please don't ask me how to install them :)
+    --   ensure_installed = ensure_installed,
+    -- }
 
+    local dapui = require 'dapui'
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup {

@@ -24,6 +24,7 @@ M.missing = function(ensure_installed)
       result[lsp_name] = config
     end
   end
+  print('missing packages: ', vim.inspect(result))
   return result
 end
 
@@ -52,7 +53,7 @@ M.install_dap = function(ensure_installed)
   for lsp_cfg, v in pairs(ensure_installed) do
     packages[source_mappings[lsp_cfg]] = v
   end
-  print(vim.inspect(packages))
+  print('install packages: ', vim.inspect(packages))
   M.install_packages(packages)
 end
 
