@@ -1,7 +1,6 @@
 return function()
   local default_config = require('mason-nvim-dap.mappings.configurations').python
   local default_adapter = require('mason-nvim-dap.mappings.adapters').python
-
   local dap = require 'dap'
 
   dap.adapters.python = function(callback, config)

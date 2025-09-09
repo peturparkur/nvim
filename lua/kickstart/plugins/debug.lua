@@ -85,7 +85,7 @@ return {
     print('ensure installed: ', vim.inspect(ensure_installed))
     mutils.install_dap(mutils.missing(ensure_installed))
 
-    require 'kickstart.plugins.dap.adapters.python'()
+    require 'kickstart.plugins.dap.adapters.generic' 'python'
 
     -- require('mason-nvim-dap').setup {
     --   ensure_installed = {}, --{ 'delve', 'python', 'debugpy' },
