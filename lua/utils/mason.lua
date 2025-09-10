@@ -7,6 +7,9 @@ local name_to_bin = {
   -- ['docker-compose-language-service'] = 'docker-compose-langserver',
 }
 
+--- filter table for packages which are not in path
+---@param ensure_installed table<string, table>
+---@return table
 M.missing = function(ensure_installed)
   if type(ensure_installed) == 'string' then
     ensure_installed = { ensure_installed }
