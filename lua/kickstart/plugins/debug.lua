@@ -5,20 +5,6 @@
 -- kickstart.nvim and not kitchen-sink.nvim ;)
 --
 
----comment
----@generic K, V, L, T
----@param tbl table<K, V>
----@param func fun(key: K, value: V): (L, T) Function
----@return table<L, T>
-local tbl_keyvalue_map = function(func, tbl)
-  local result = {}
-  for key, value in pairs(tbl) do
-    local k, v = func(key, value)
-    result[k] = v
-  end
-  return result
-end
-
 ---@param config {type?:string, args?:string[]|fun():string[]?}
 local function get_arguments(config)
   local args = type(config.args) == 'function' and (config.args() or {}) or config.args or {} --[[@as string[] | string ]]

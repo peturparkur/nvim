@@ -29,6 +29,8 @@ return {
       'saghen/blink.cmp',
     },
     config = function()
+      local funcm = require 'utils.functional'
+
       -- some default parameters
       vim.lsp.inlay_hint.enable(true, nil)
 
@@ -247,12 +249,17 @@ return {
       -- We take the languages configured for a given profile
       -- Given the profile we take the LSPs configured for the languages
       -- Then we guarantee use or install the LSPs
-      local lsps = require('utils.profile').LanguageServers()
+
+      local languages = require('utils.profile').Languages()
+      local lsps = funcm.tbl_index_keyvalue_map(function(i, _, v)
+        return i, require('custom.languages')[v].lsp
+      end, languages)
+      local lsps = funcm.extract(lsps)
       -- print(vim.inspect(lsps))
       local missing_lsps = require('utils.mason').missing(lsps) -- find missing lsps
-      -- print(vim.inspect(missing_lsps))
-      missing_lsps = {} -- TODO: this is only for NixOS to prefer installing via nixpkgs instead of mason
-
+      if funcm.len(missing_lsps) > 0 then
+        print('missing lsps', vim.inspect(missing_lsps)) --  TODO: this is only for NixOS to prefer installing via nixpkgs instead of mason
+      end
       -- install the executables of the language servers that we don't already have installed locally outside of mason
       require('utils.mason').install_lsp(missing_lsps)
 
