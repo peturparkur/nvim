@@ -14,8 +14,15 @@ return {
     },
   },
   opts = function(_, _)
-    local M = require 'utils.mason'
-    local formatters = { stylua = {}, ruff = {} }
+    -- will run this on first save
+    local funcm = require 'utils.functional'
+    local M = require 'utils.mason' -- implicit dependency for now
+
+    local languages = require('utils.profile').Languages()
+    local formatters = funcm.tbl_index_keyvalue_map(function(i, _, v)
+      return i, require('custom.languages')[v].format
+    end, languages)
+    formatters = funcm.extract(formatters)
     M.install_formatter(M.missing(formatters))
 
     return {
