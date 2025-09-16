@@ -226,12 +226,23 @@ return {
     vim.notify('HELLO!', vim.log.levels.WARN, nil)
     local dap = require 'dap'
 
-    local ensure_installed = { ['delve'] = {}, ['python'] = {} }
-    local mutils = require 'utils.mason'
-    print('ensure installed 0: ', vim.inspect(ensure_installed))
-    mutils.install_dap(mutils.missing(ensure_installed))
+    -- will run this on first save
+    local funcm = require 'utils.functional'
+    local M = require 'utils.mason' -- implicit dependency for now
 
-    require 'kickstart.plugins.dap.adapters.generic' 'python'
+    local languages = require('utils.profile').Languages()
+    local debuggers = funcm.tbl_index_keyvalue_map(function(i, _, v)
+      return i, require('custom.languages')[v].dap
+    end, languages)
+    debuggers = funcm.extract(debuggers)
+    M.install_dap(M.missing(debuggers))
+
+    -- local ensure_installed = { ['delve'] = {}, ['python'] = {} }
+    -- mutils.install_dap(mutils.missing(ensure_installed))
+    for key, config in pairs(debuggers) do
+      require 'kickstart.plugins.dap.adapters.generic'(key, config)
+    end
+    -- require 'kickstart.plugins.dap.adapters.generic' 'python'
 
     -- require('mason-nvim-dap').setup {
     --   ensure_installed = {}, --{ 'delve', 'python', 'debugpy' },

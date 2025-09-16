@@ -13,7 +13,7 @@ return function(name, options, adapter)
   options = vim.tbl_deep_extend('force', require('mason-nvim-dap.mappings.configurations')[name], options)
 
   dap.configurations.python = options
-  dap.adapters.python = function(callback, config)
+  dap.adapters[name] = function(callback, config)
     adapter = vim.tbl_deep_extend('force', require('mason-nvim-dap.mappings.adapters')[name], adapter)
     callback(adapter)
   end

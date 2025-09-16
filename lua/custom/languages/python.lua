@@ -1,5 +1,5 @@
 return {
-  dap = {},
+  dap = { python = {} },
   lsp = {
     -- pyrefly = {},
     pyright = {

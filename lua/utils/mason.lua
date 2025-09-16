@@ -73,7 +73,7 @@ M.install_formatter = function(ensure_installed)
   end, specs)
 
   if vim.tbl_count(specs) <= 0 then
-    print('Could not find packages in Mason registry', ensure_installed)
+    print('Could not find packages in Mason registry', vim.inspect(ensure_installed))
     return
   end
 
