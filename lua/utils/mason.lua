@@ -27,7 +27,11 @@ M.missing = function(ensure_installed)
       result[lsp_name] = config
     end
   end
-  print('missing packages: ', vim.inspect(result))
+
+  if require('utils.functional').len(result) > 0 then
+    print('missing packages: ', vim.inspect(result))
+  end
+
   return result
 end
 
