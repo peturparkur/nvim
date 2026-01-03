@@ -11,6 +11,9 @@ return function(name, options, adapter)
 
   -- we override the default configurations with our options
   options = vim.tbl_deep_extend('force', require('mason-nvim-dap.mappings.configurations')[name], options)
+  if name == 'python' then
+    vim.print(options)
+  end
 
   dap.configurations.python = options
   dap.adapters[name] = function(callback, config)

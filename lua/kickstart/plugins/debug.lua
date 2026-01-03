@@ -113,11 +113,11 @@ return {
       desc = '[d]ebug: run [l]ast',
     },
     {
-      '<leader>dO',
+      '<leader>du',
       function()
         require('dap').step_out()
       end,
-      desc = '[d]ebug: step [O]ut',
+      desc = '[d]ebug: step o[u]t',
     },
     {
       '<leader>do',
@@ -235,6 +235,8 @@ return {
       return i, require('custom.languages')[v].dap
     end, languages)
     debuggers = funcm.extract(debuggers)
+    vim.print 'debuggers'
+    vim.print(debuggers)
     M.install_dap(M.missing(debuggers))
 
     -- local ensure_installed = { ['delve'] = {}, ['python'] = {} }
