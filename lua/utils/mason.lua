@@ -7,6 +7,9 @@ local name_to_bin = {
   -- ['docker-compose-language-service'] = 'docker-compose-langserver',
 }
 
+--- filter table for packages which are not in path
+---@param ensure_installed table<string, table>
+---@return table
 M.missing = function(ensure_installed)
   if type(ensure_installed) == 'string' then
     ensure_installed = { ensure_installed }
@@ -24,29 +27,86 @@ M.missing = function(ensure_installed)
       result[lsp_name] = config
     end
   end
+
+  if require('utils.functional').len(result) > 0 then
+    print('missing packages: ', vim.inspect(result))
+  end
+
   return result
 end
 
--- We guarantee 'ensure_installed' package is installed locally
--- If enforce_local is false then we install it via mason-registry
--- By default we install LSPs via mason
-M.install = function(ensure_installed)
-  -- ensure installed is expected of the form <lspname>: {cmd: "", settings: {...}}
-
-  -- ensure_installed = M.missing(ensure_installed, enforce_local)
-  local lspconfig_to_pkg = require('mason-lspconfig').get_mappings().lspconfig_to_package
-
+---comment
+---@param ensure_installed table<string, table>
+M.install_packages = function(ensure_installed)
   local registry = require 'mason-registry'
-  -- local mason_lspconfig = require 'mason-lspconfig'
   registry.refresh(function()
-    for lsp_cfg, _ in pairs(ensure_installed) do
-      local pkg_name = lspconfig_to_pkg[lsp_cfg] -- get mason package name based on lspconfig name
-      local pkg = registry.get_package(pkg_name)
+    for package, _ in pairs(ensure_installed) do
+      local pkg = registry.get_package(package)
       if not pkg:is_installed() then
         pkg:install()
       end
     end
   end)
+end
+
+---comment
+---@param ensure_installed table<string, table>
+M.install_dap = function(ensure_installed)
+  -- ensure installed is expected of the form <lspname>: {cmd: "", settings: {...}}
+
+  -- ensure_installed = M.missing(ensure_installed, enforce_local)
+  local source_mappings = require('mason-nvim-dap.mappings.source').nvim_dap_to_package
+  local packages = {}
+  for lsp_cfg, v in pairs(ensure_installed) do
+    packages[source_mappings[lsp_cfg]] = v
+  end
+  print('install packages: ', vim.inspect(packages))
+  M.install_packages(packages)
+end
+
+---@param ensure_installed table<string, table>
+M.install_formatter = function(ensure_installed)
+  local specs = require('mason-registry').get_all_package_specs()
+  specs = vim.tbl_filter(function(v)
+    return vim.list_contains(v['categories'], 'Formatter')
+  end, specs)
+
+  -- filter names that are in ensure installed
+  specs = vim.tbl_filter(function(v)
+    return ensure_installed[v['name']] ~= nil
+  end, specs)
+
+  if vim.tbl_count(specs) <= 0 then
+    print('Could not find packages in Mason registry', vim.inspect(ensure_installed))
+    return
+  end
+
+  -- filter installable elements
+  local installable = {}
+  for _, data in pairs(specs) do
+    local k = data['name']
+    installable[k] = ensure_installed[k]
+  end
+  M.install_packages(installable)
+end
+
+-- We guarantee 'ensure_installed' package is installed locally
+-- If enforce_local is false then we install it via mason-registry
+-- By default we install LSPs via mason
+---comment
+---@param ensure_installed table<string, table>
+M.install_lsp = function(ensure_installed)
+  -- ensure installed is expected of the form <lspname>: {cmd: "", settings: {...}}
+
+  --- [bin -> name -> "", languages -> "", categories -> []]
+
+  -- ensure_installed = M.missing(ensure_installed, enforce_local)
+  local lspconfig_to_pkg = require('mason-lspconfig').get_mappings().lspconfig_to_package
+  local packages = {}
+  for lsp_cfg, v in pairs(ensure_installed) do
+    packages[lspconfig_to_pkg[lsp_cfg]] = v
+  end
+  M.install_packages(packages)
 end
 
 return M
