@@ -5,6 +5,9 @@ return {
       alias = 'rust-analyzer',
     },
   },
+  format = {
+    rustfmt = {},
+  },
   dap = {
     codelldb = {},
   },
