@@ -33,6 +33,8 @@ return { -- Autocompletion
     --  into multiple repos for maintenance purposes.
     'hrsh7th/cmp-nvim-lsp',
     'hrsh7th/cmp-path',
+    'hrsh7th/cmp-buffer', -- nvim-cmp source for buffer words.
+    'hrsh7th/cmp-nvim-lsp-signature-help', -- nvim-cmp source for displaying function signatures with the current parameter emphasized
   },
   config = function()
     -- See `:help cmp`
@@ -100,10 +102,39 @@ return { -- Autocompletion
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
       },
+
+      -- add custom symbol for kind of completion for copilot
+      formatting = {
+        format = function(entry, vim_item)
+          if entry.source.name == 'nvim_lsp' then
+            vim_item.kind = ''
+          end
+          if entry.source.name == 'luasnip' then
+            vim_item.kind = ''
+          end
+          if entry.source.name == 'path' then
+            vim_item.kind = 'ﱮ'
+          end
+          if entry.source.name == 'buffer' then
+            vim_item.kind = ''
+          end
+          if entry.source.name == 'copilot' then
+            vim_item.kind = ''
+          end
+          return vim_item
+        end,
+        -- format = lspkind.cmp_format {
+        --   mode = 'symbol',
+        --   max_width = 50,
+        --   symbol_map = { Copilot = '' },
+        -- },
+      },
       sources = {
-        { name = 'nvim_lsp' },
-        { name = 'luasnip' },
-        { name = 'path' },
+        -- Copilot Source
+        { name = 'copilot', group_index = 2 },
+        { name = 'nvim_lsp', group_index = 2 },
+        { name = 'luasnip', group_index = 2 },
+        { name = 'path', group_index = 2 },
       },
     }
   end,
