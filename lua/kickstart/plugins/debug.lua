@@ -235,8 +235,7 @@ return {
       return i, require('custom.languages')[v].dap
     end, languages)
     debuggers = funcm.extract(debuggers)
-    vim.print 'debuggers'
-    vim.print(debuggers)
+    -- vim.print(debuggers)
     M.install_dap(M.missing(debuggers))
 
     -- local ensure_installed = { ['delve'] = {}, ['python'] = {} }
