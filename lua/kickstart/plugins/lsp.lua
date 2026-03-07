@@ -254,7 +254,7 @@ return {
       local lsps = funcm.tbl_index_keyvalue_map(function(i, _, v)
         return i, require('custom.languages')[v].lsp
       end, languages)
-      local lsps = funcm.extract(lsps)
+      local lsps = funcm.to_list(lsps)
       -- print(vim.inspect(lsps))
       local missing_lsps = require('utils.mason').missing(lsps) -- find missing lsps
       if funcm.len(missing_lsps) > 0 then
@@ -266,8 +266,9 @@ return {
       -- configure nvim lsp via lspconfig package for our list of lsps
       -- local lspconfig = require 'lspconfig'
       for server, config in pairs(lsps) do
-        -- tbl_deep_extend with force -> on conflict use value from right
         config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
+        require('mason-lspconfig').setup { server }
+        -- tbl_deep_extend with force -> on conflict use value from right
 
         -- the require(lspconfig)[server].setup({...}) notation is deprecated in nvim-lspconfig
         -- Thus we use the new notation for setting up LSPs

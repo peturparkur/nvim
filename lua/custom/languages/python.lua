@@ -23,7 +23,7 @@ return {
     },
   },
   lsp = {
-    pyrefly = {},
+    pyrefly = { pyrefly = { python = { pyrefly = { displayTypeErrors = 'force-on' } }, lspPath = '/run/current-system/sw/bin/pyrefly' } },
     -- pyright = {
     --   settings = {
     --     python = {
@@ -59,6 +59,10 @@ return {
     -- },
   },
   format = {
-    ruff = {},
+    ruff = {
+      'ruff_fix',
+      'ruff_organize_imports',
+      'ruff_format',
+    },
   },
 }

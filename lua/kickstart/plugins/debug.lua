@@ -234,7 +234,7 @@ return {
     local debuggers = funcm.tbl_index_keyvalue_map(function(i, _, v)
       return i, require('custom.languages')[v].dap
     end, languages)
-    debuggers = funcm.extract(debuggers)
+    debuggers = funcm.to_list(debuggers)
     -- vim.print(debuggers)
     M.install_dap(M.missing(debuggers))
 

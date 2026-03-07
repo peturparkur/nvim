@@ -1,6 +1,7 @@
 M = {}
 
----comment
+--- Given a table<K, V> we apply a mapping on each element using
+--- function(index, key, value) -> (new_key, new_value)
 ---@generic K, V, L, T
 ---@param tbl table<K, V>
 ---@param func fun(key: K, value: V): (L, T) Function
@@ -14,7 +15,8 @@ M.tbl_keyvalue_map = function(func, tbl)
   return result
 end
 
----comment
+--- Given a table<K, V> we apply a mapping on each element using
+--- function(index, key, value) -> (new_key, new_value)
 ---@generic K, V, L, T
 ---@param tbl table<K, V>
 ---@param func fun(idx: integer, key: K, value: V): (L, T) Function
@@ -41,14 +43,41 @@ M.len = function(tbl)
   return i
 end
 
----comment
+---
 ---@generic K, V
 ---@param tbl table<integer, table<K, V>>
 ---@return table<K, V>
-M.extract = function(tbl)
+M.to_list = function(tbl)
   local result = {}
   for _, data in ipairs(tbl) do
     for k, v in pairs(data) do
+      result[k] = v
+    end
+  end
+  return result
+end
+
+---@generic K, V
+---@param tbl table<K, V>
+---@return table<integer, V>
+M.values = function(tbl)
+  local result = {}
+  local i = 0
+  for _, v in pairs(tbl) do
+    result[i] = v
+    i = i + 1
+  end
+  return result
+end
+
+---@generic K, V
+---@param tbl table<K, V>
+---@param func fun(key: K, value: V): boolean Function
+---@return table<K, V>
+M.filter = function(func, tbl)
+  local result = {}
+  for k, v in pairs(tbl) do
+    if func(k, v) then
       result[k] = v
     end
   end
