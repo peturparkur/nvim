@@ -195,16 +195,14 @@ return {
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
         underline = { severity = vim.diagnostic.severity.ERROR },
-        signs = vim.g.have_nerd_font
-            and {
-              text = {
-                [vim.diagnostic.severity.ERROR] = '󰅚 ', -- circle with cross
-                [vim.diagnostic.severity.WARN] = '󰀪 ', -- triangle warning
-                [vim.diagnostic.severity.INFO] = '󰋽 ', -- circle with i
-                [vim.diagnostic.severity.HINT] = '󰌶 ', -- lightbulb
-              },
-            }
-          or {},
+        signs = vim.g.have_nerd_font and {
+          text = {
+            [vim.diagnostic.severity.ERROR] = '󰅚 ', -- circle with cross
+            [vim.diagnostic.severity.WARN] = '󰀪 ', -- triangle warning
+            [vim.diagnostic.severity.INFO] = '󰋽 ', -- circle with i
+            [vim.diagnostic.severity.HINT] = '󰌶 ', -- lightbulb
+          },
+        } or {},
         virtual_text = {
           source = 'if_many',
           spacing = 2,
@@ -230,7 +228,8 @@ return {
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities())
 
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install

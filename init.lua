@@ -317,8 +317,8 @@ require('lazy').setup({
   require 'kickstart.plugins.format',
 
   -- autocomplete/autocompletion engines
-  -- require 'kickstart.plugins.autocomplete.blink-cmp',
-  require 'kickstart.plugins.autocomplete.nvim-cmp',
+  require 'kickstart.plugins.autocomplete.blink-cmp',
+  -- require 'kickstart.plugins.autocomplete.nvim-cmp',
 
   -- THEMES
   -- require 'kickstart.plugins.themes.tokyonight',
