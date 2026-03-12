@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 
 --- Given a table<K, V> we apply a mapping on each element using
 --- function(index, key, value) -> (new_key, new_value)
