@@ -116,34 +116,24 @@ vim.opt.showmode = false
 vim.opt.clipboard = 'unnamedplus'
 
 -- To have clipboard usage across SSH
--- local last_yank = nil
--- vim.g.clipboard = {
---   name = 'OSC 52',
---   copy = {
---     ['+'] = function(lines, regtype)
---       last_yank = { lines = lines, regtype = regtype }
---       require('vim.ui.clipboard.osc52').copy '+'(lines, regtype)
---     end,
---     ['*'] = function(lines, regtype)
---       last_yank = { lines = lines, regtype = regtype }
---       require('vim.ui.clipboard.osc52').copy '*'(lines, regtype)
---     end,
---     paste = {
---       ['+'] = function()
---         if last_yank then
---           return last_yank.lines
---         end
---         return require('vim.ui.clipboard.osc52').paste '+'()
---       end,
---       ['*'] = function()
---         if last_yank then
---           return last_yank.lines
---         end
---         return require('vim.ui.clipboard.osc52').paste '*'()
---       end,
---     },
---   },
--- }
+-- Only required at work for now
+if false then
+  -- no OP function
+  local function no_paste(reg)
+    return function(lines) end
+  end
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('lua.vim.ui.clipboard.osc52').copy '+',
+      ['*'] = require('lua.vim.ui.clipboard.osc52').copy '*',
+      paste = {
+        ['+'] = no_paste '+', -- Pasting disabled
+        ['*'] = no_paste '*', -- Pasting disabled
+      },
+    },
+  }
+end
 
 -- Enable break indent
 vim.opt.breakindent = true
