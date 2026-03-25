@@ -116,34 +116,34 @@ vim.opt.showmode = false
 vim.opt.clipboard = 'unnamedplus'
 
 -- To have clipboard usage across SSH
-local last_yank = nil
-vim.g.clipboard = {
-  name = 'OSC 52',
-  copy = {
-    ['+'] = function(lines, regtype)
-      last_yank = { lines = lines, regtype = regtype }
-      require('vim.ui.clipboard.osc52').copy '+'(lines, regtype)
-    end,
-    ['*'] = function(lines, regtype)
-      last_yank = { lines = lines, regtype = regtype }
-      require('vim.ui.clipboard.osc52').copy '*'(lines, regtype)
-    end,
-    paste = {
-      ['+'] = function()
-        if last_yank then
-          return last_yank.lines
-        end
-        return require('vim.ui.clipboard.osc52').paste '+'()
-      end,
-      ['*'] = function()
-        if last_yank then
-          return last_yank.lines
-        end
-        return require('vim.ui.clipboard.osc52').paste '*'()
-      end,
-    },
-  },
-}
+-- local last_yank = nil
+-- vim.g.clipboard = {
+--   name = 'OSC 52',
+--   copy = {
+--     ['+'] = function(lines, regtype)
+--       last_yank = { lines = lines, regtype = regtype }
+--       require('vim.ui.clipboard.osc52').copy '+'(lines, regtype)
+--     end,
+--     ['*'] = function(lines, regtype)
+--       last_yank = { lines = lines, regtype = regtype }
+--       require('vim.ui.clipboard.osc52').copy '*'(lines, regtype)
+--     end,
+--     paste = {
+--       ['+'] = function()
+--         if last_yank then
+--           return last_yank.lines
+--         end
+--         return require('vim.ui.clipboard.osc52').paste '+'()
+--       end,
+--       ['*'] = function()
+--         if last_yank then
+--           return last_yank.lines
+--         end
+--         return require('vim.ui.clipboard.osc52').paste '*'()
+--       end,
+--     },
+--   },
+-- }
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -374,6 +374,7 @@ require('lazy').setup({
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
   require 'custom.extras.code_companion.codecompanion',
+  require 'custom.extras.code_companion.lumina',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
