@@ -66,6 +66,10 @@ end
 
 ---@param ensure_installed table<string, table>
 M.install_formatter = function(ensure_installed)
+	local ft = require 'utils.functional'
+  if ft.len(ensure_installed) <= 0 then
+    return
+  end
   local specs = require('mason-registry').get_all_package_specs()
   specs = vim.tbl_filter(function(v)
     return vim.list_contains(v['categories'], 'Formatter')

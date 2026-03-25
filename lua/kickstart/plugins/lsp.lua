@@ -29,7 +29,7 @@ return {
       'saghen/blink.cmp',
     },
     config = function()
-      local funcm = require 'utils.functional'
+      local ft = require 'utils.functional'
 
       -- some default parameters
       vim.lsp.inlay_hint.enable(true, nil)
@@ -195,16 +195,14 @@ return {
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
         underline = { severity = vim.diagnostic.severity.ERROR },
-        signs = vim.g.have_nerd_font
-            and {
-              text = {
-                [vim.diagnostic.severity.ERROR] = '󰅚 ', -- circle with cross
-                [vim.diagnostic.severity.WARN] = '󰀪 ', -- triangle warning
-                [vim.diagnostic.severity.INFO] = '󰋽 ', -- circle with i
-                [vim.diagnostic.severity.HINT] = '󰌶 ', -- lightbulb
-              },
-            }
-          or {},
+        signs = vim.g.have_nerd_font and {
+          text = {
+            [vim.diagnostic.severity.ERROR] = '󰅚 ', -- circle with cross
+            [vim.diagnostic.severity.WARN] = '󰀪 ', -- triangle warning
+            [vim.diagnostic.severity.INFO] = '󰋽 ', -- circle with i
+            [vim.diagnostic.severity.HINT] = '󰌶 ', -- lightbulb
+          },
+        } or {},
         virtual_text = {
           source = 'if_many',
           spacing = 2,
@@ -230,7 +228,8 @@ return {
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities())
 
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
@@ -251,13 +250,13 @@ return {
       -- Then we guarantee use or install the LSPs
 
       local languages = require('utils.profile').Languages()
-      local lsps = funcm.tbl_index_keyvalue_map(function(i, _, v)
+      local lsps = ft.tbl_index_keyvalue_map(function(i, _, v)
         return i, require('custom.languages')[v].lsp
       end, languages)
-      local lsps = funcm.extract(lsps)
+      local lsps = ft.to_list(lsps)
       -- print(vim.inspect(lsps))
       local missing_lsps = require('utils.mason').missing(lsps) -- find missing lsps
-      if funcm.len(missing_lsps) > 0 then
+      if ft.len(missing_lsps) > 0 then
         print('missing lsps', vim.inspect(missing_lsps)) --  TODO: this is only for NixOS to prefer installing via nixpkgs instead of mason
       end
       -- install the executables of the language servers that we don't already have installed locally outside of mason
@@ -266,8 +265,9 @@ return {
       -- configure nvim lsp via lspconfig package for our list of lsps
       -- local lspconfig = require 'lspconfig'
       for server, config in pairs(lsps) do
-        -- tbl_deep_extend with force -> on conflict use value from right
         config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
+        require('mason-lspconfig').setup { server }
+        -- tbl_deep_extend with force -> on conflict use value from right
 
         -- the require(lspconfig)[server].setup({...}) notation is deprecated in nvim-lspconfig
         -- Thus we use the new notation for setting up LSPs

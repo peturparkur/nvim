@@ -115,6 +115,26 @@ vim.opt.showmode = false
 --  See `:help 'clipboard'`
 vim.opt.clipboard = 'unnamedplus'
 
+-- To have clipboard usage across SSH
+-- Only required at work for now
+if false then
+  -- no OP function
+  local function no_paste(reg)
+    return function(lines) end
+  end
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('lua.vim.ui.clipboard.osc52').copy '+',
+      ['*'] = require('lua.vim.ui.clipboard.osc52').copy '*',
+      paste = {
+        ['+'] = no_paste '+', -- Pasting disabled
+        ['*'] = no_paste '*', -- Pasting disabled
+      },
+    },
+  }
+end
+
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -317,8 +337,8 @@ require('lazy').setup({
   require 'kickstart.plugins.format',
 
   -- autocomplete/autocompletion engines
-  -- require 'kickstart.plugins.autocomplete.blink-cmp',
-  require 'kickstart.plugins.autocomplete.nvim-cmp',
+  require 'kickstart.plugins.autocomplete.blink-cmp',
+  -- require 'kickstart.plugins.autocomplete.nvim-cmp',
 
   -- THEMES
   -- require 'kickstart.plugins.themes.tokyonight',
@@ -343,6 +363,8 @@ require('lazy').setup({
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'custom.extras.code_companion.codecompanion',
+  require 'custom.extras.code_companion.lumina',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
