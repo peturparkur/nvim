@@ -342,6 +342,8 @@ require('lazy').setup({
 
   -- THEMES
   -- require 'kickstart.plugins.themes.tokyonight',
+  -- require 'kickstart.plugins.themes.everforest',
+  -- require 'kickstart.plugins.themes.kanagawa',
   require 'kickstart.plugins.themes.catppuccin',
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
@@ -363,8 +365,8 @@ require('lazy').setup({
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
-  require 'custom.extras.code_companion.codecompanion',
-  require 'custom.extras.code_companion.lumina',
+  -- require 'custom.extras.code_companion.codecompanion',
+  -- require 'custom.extras.code_companion.lumina',
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --

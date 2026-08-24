@@ -1,8 +1,8 @@
 return {
   lsp = {
-    ['nil_ls'] = {
-      alias = 'nil',
-    },
+    -- ['nil_ls'] = {
+    --   alias = 'nil',
+    -- },
     nixd = {
       settings = {
         nixd = {
