@@ -213,6 +213,70 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
+-- Clean padding added by full-screen terminal applications when yanking.
+-- Set the argument to false to disable this without removing the function.
+local function setup_terminal_yank_cleanup(enabled)
+  local group = vim.api.nvim_create_augroup('custom-terminal-yank-cleanup', { clear = true })
+  if not enabled then
+    return
+  end
+
+  vim.api.nvim_create_autocmd('TextYankPost', {
+    desc = 'Clean up terminal yanks',
+    group = group,
+    callback = function(event)
+      -- Terminal applications render a fixed-width screen.  Their buffer lines
+      -- can therefore contain trailing spaces used to fill the rest of the row.
+      -- Remove that padding without changing the terminal buffer or affecting
+      -- yanks from regular files.
+      local yank = vim.v.event
+      if vim.bo[event.buf].buftype ~= 'terminal' or yank.operator ~= 'y' or yank.regtype == '\22' then
+        return
+      end
+
+      local cleaned = {}
+      local changed = false
+      for i, line in ipairs(yank.regcontents or {}) do
+        cleaned[i] = line:gsub('%s+$', '')
+        changed = changed or cleaned[i] ~= line
+      end
+      if not changed then
+        return
+      end
+
+      local registers
+      if yank.regname ~= '' then
+        -- An uppercase register name means append.  The yank has already been
+        -- appended, so overwrite the lowercase register with the cleaned result
+        -- instead of appending it a second time.
+        registers = { yank.regname:lower() }
+      else
+        -- With unnamedplus, an unnamed yank is written to + rather than ".
+        -- Respect the active clipboard setting so the system clipboard receives
+        -- the cleaned text as well.
+        local clipboard = vim.opt.clipboard:get()
+        if vim.tbl_contains(clipboard, 'unnamedplus') then
+          registers = { '+' }
+          if vim.tbl_contains(clipboard, 'unnamed') then
+            registers[#registers + 1] = '*'
+          end
+        elseif vim.tbl_contains(clipboard, 'unnamed') then
+          registers = { '*' }
+        else
+          registers = { '"' }
+        end
+      end
+
+      for _, register in ipairs(registers) do
+        vim.fn.setreg(register, cleaned, yank.regtype)
+      end
+    end,
+  })
+end
+
+-- Change this to false to disable terminal-yank cleanup.
+setup_terminal_yank_cleanup(true)
+
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
