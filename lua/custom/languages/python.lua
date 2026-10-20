@@ -23,7 +23,18 @@ return {
     },
   },
   lsp = {
-    pyrefly = { pyrefly = { python = { pyrefly = { displayTypeErrors = 'force-on' } }, lspPath = '/run/current-system/sw/bin/pyrefly' } },
+    -- Use ty as the sole Python LSP so navigation and diagnostics have one source.
+    -- The executable is provided by NixOS; nvim-lspconfig supplies `ty server`.
+    ty = {
+      settings = {
+        ty = {
+          configuration = {
+            -- ty has no named strict mode: enable every rule at error severity.
+            rules = { all = 'error' },
+          },
+        },
+      },
+    },
     -- pyright = {
     --   settings = {
     --     python = {
