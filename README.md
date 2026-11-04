@@ -10,6 +10,12 @@ A starting point for Neovim that is:
 
 **NOT** a Neovim distribution, but instead a starting point for your configuration.
 
+## Custom clipboard behavior
+
+Nested editors (for example Pi's external Neovim inside ToggleTerm) automatically
+share parent registers when no native clipboard provider is detected. Desktop
+clipboard behavior is preserved. See [clipboard setup and SSH limitations](doc/clipboard.md).
+
 ## Installation
 
 ### Install Neovim
