@@ -110,30 +110,11 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
+-- Prefer the system clipboard; nested editors without a native provider share
+-- the parent Neovim's registers instead (e.g. Pi's external editor in ToggleTerm).
+-- See doc/clipboard.md for selection rules, overrides, and SSH limitations.
 vim.opt.clipboard = 'unnamedplus'
-
--- To have clipboard usage across SSH
--- Only required at work for now
-if false then
-  -- no OP function
-  local function no_paste(reg)
-    return function(lines) end
-  end
-  vim.g.clipboard = {
-    name = 'OSC 52',
-    copy = {
-      ['+'] = require('lua.vim.ui.clipboard.osc52').copy '+',
-      ['*'] = require('lua.vim.ui.clipboard.osc52').copy '*',
-      paste = {
-        ['+'] = no_paste '+', -- Pasting disabled
-        ['*'] = no_paste '*', -- Pasting disabled
-      },
-    },
-  }
-end
+require('custom.clipboard').setup()
 
 -- Enable break indent
 vim.opt.breakindent = true
