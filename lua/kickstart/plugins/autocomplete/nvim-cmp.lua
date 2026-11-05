@@ -103,7 +103,7 @@ return { -- Autocompletion
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
       },
 
-      -- add custom symbol for kind of completion for copilot
+      -- Custom symbols for completion sources
       formatting = {
         format = function(entry, vim_item)
           if entry.source.name == 'nvim_lsp' then
@@ -118,20 +118,10 @@ return { -- Autocompletion
           if entry.source.name == 'buffer' then
             vim_item.kind = ''
           end
-          if entry.source.name == 'copilot' then
-            vim_item.kind = ''
-          end
           return vim_item
         end,
-        -- format = lspkind.cmp_format {
-        --   mode = 'symbol',
-        --   max_width = 50,
-        --   symbol_map = { Copilot = '' },
-        -- },
       },
       sources = {
-        -- Copilot Source
-        -- { name = 'copilot', group_index = 2 },
         { name = 'nvim_lsp', group_index = 2 },
         { name = 'luasnip', group_index = 2 },
         { name = 'path', group_index = 2 },
