@@ -89,7 +89,38 @@ local function parent_provider(channel)
   }
 end
 
---- Share the parent's unnamed register only when no native clipboard is detected.
+-- OSC 52 writes travel through SSH to the user's terminal. Never query that
+-- terminal on paste: reads may be forbidden or block waiting for a response.
+local function ssh_provider()
+  local osc52 = require 'vim.ui.clipboard.osc52'
+  local provider = {
+    name = 'OSC 52 copy (local paste cache)',
+    copy = {},
+    paste = {},
+    cache_enabled = 0,
+  }
+  for _, register in ipairs { '+', '*' } do
+    local data = { {}, 'v' }
+    local copy = osc52.copy(register)
+    provider.copy[register] = function(lines, regtype)
+      copy(lines)
+      data = { vim.deepcopy(lines), regtype }
+    end
+    provider.paste[register] = function()
+      return vim.deepcopy(data)
+    end
+  end
+  return provider
+end
+
+local function install(provider)
+  vim.g.clipboard = provider
+  -- Detection may already have initialized the built-in provider as unavailable.
+  vim.g.loaded_clipboard_provider = nil
+  vim.cmd 'runtime autoload/provider/clipboard.vim'
+end
+
+--- Prefer native providers, bridge nested editors, or copy via OSC 52 over SSH.
 --- Call early in init.lua, after setting 'clipboard' and before loading plugins.
 ---@param opts? { mode?: 'auto'|'parent'|'off' }
 function M.setup(opts)
@@ -103,28 +134,29 @@ function M.setup(opts)
     return
   end
   local socket = vim.env.NVIM
-  if not socket or socket == '' then
-    return -- Standalone editor: desktop/SSH clipboard configuration is independent.
+  local nested = socket ~= nil and socket ~= ''
+  local ssh = (vim.env.SSH_CONNECTION or '') ~= '' or (vim.env.SSH_TTY or '') ~= ''
+  if not nested and not ssh then
+    return
   end
 
-  -- Reuse Neovim's platform-specific detection (macOS, Wayland, X11, Windows,
-  -- tmux, etc.), rather than treating SSH alone as evidence of no clipboard.
-  if mode == 'auto' then
+  -- Reuse Neovim's platform-specific detection rather than assuming that SSH
+  -- rules out a native clipboard (e.g. an X-forwarded display or tmux).
+  if mode == 'auto' or not nested then
     local provider = vim.fn['provider#clipboard#Executable']()
     if provider ~= '' and provider ~= 'OSC 52' then
       return
     end
   end
-  -- OSC 52 is not a usable fallback for reading inside a :terminal buffer.
-  local channel = connect(socket)
-  if not channel then
-    return
+  if nested then
+    -- OSC 52 cannot read through a :terminal buffer; use the parent's registers.
+    local channel = connect(socket)
+    if channel then
+      install(parent_provider(channel))
+    end
+  elseif ssh then
+    install(ssh_provider())
   end
-  vim.g.clipboard = parent_provider(channel)
-  -- Detection above initializes the built-in provider. Reload its callbacks now
-  -- that g:clipboard has changed (see :help faq-runtime).
-  vim.g.loaded_clipboard_provider = nil
-  vim.cmd 'runtime autoload/provider/clipboard.vim'
 end
 
 return M

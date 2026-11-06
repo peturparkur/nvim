@@ -11,7 +11,7 @@ local function exec(job, code, ...)
 end
 
 local function editor(env)
-  local clean_env = { NVIM = '', DISPLAY = '', WAYLAND_DISPLAY = '', TMUX = '', PATH = temp }
+  local clean_env = { SSH_CONNECTION = '', SSH_TTY = '', NVIM = '', DISPLAY = '', WAYLAND_DISPLAY = '', TMUX = '', PATH = temp }
   local job = vim.fn.jobstart({ vim.v.progpath, '--embed', '--headless', '-u', 'NONE', '-i', 'NONE', '-n' }, {
     rpc = true,
     env = vim.tbl_extend('force', clean_env, env or {}),
@@ -72,11 +72,97 @@ local ok, err = xpcall(function()
   local parent = editor()
   local socket = exec(parent, [[return vim.fn.serverstart(...)]], temp .. '/parent.sock')
 
-  check('standalone SSH is unchanged', function()
-    local child = editor { SSH_CONNECTION = 'test' }
-    setup(child)
-    equal('', provider(child))
-    equal(true, exec(child, [[return vim.g.clipboard == nil]]))
+  check('standalone SSH uses write-only OSC 52', function()
+    local remote = editor { SSH_CONNECTION = 'test' }
+    setup(remote)
+    equal('OSC 52 copy (local paste cache)', provider(remote))
+  end)
+
+  check('SSH terminal-buffer yanks reach OSC 52 without clipboard reads', function()
+    local remote = editor { SSH_TTY = '/dev/pts/test' }
+    exec(remote, [[
+      _G.copies = {}
+      package.loaded['vim.ui.clipboard.osc52'] = {
+        copy = function(register)
+          return function(lines)
+            table.insert(_G.copies, { register, vim.deepcopy(lines) })
+          end
+        end,
+        paste = function() error('must not query the terminal clipboard') end,
+      }
+    ]])
+    equal('', provider(remote)) -- Also exercise reloading unavailable callbacks.
+    setup(remote)
+    equal('OSC 52 copy (local paste cache)', provider(remote))
+    equal({ {}, 'v' }, reg(remote, '+'))
+    exec(remote, [[
+      local channel = vim.api.nvim_open_term(0, {})
+      vim.api.nvim_chan_send(channel, 'LLM response: λ雪\r\nsecond line\r\n')
+      vim.wait(50)
+      assert(vim.bo.buftype == 'terminal')
+      vim.cmd 'normal! gg0v15ly'
+    ]])
+    equal({ '+', { 'LLM response: λ雪' } }, exec(remote, [[return _G.copies[#_G.copies] ]]))
+    equal({ { 'LLM response: λ雪' }, 'v' }, reg(remote, '+'))
+    exec(remote, [[vim.fn.setreg('+', { 'first', '' }, 'V')]])
+    equal({ { 'first', '' }, 'V' }, reg(remote, '+'))
+    exec(remote, [[vim.fn.setreg('*', { 'ab', 'cd' }, '\0222')]])
+    equal({ { 'ab', 'cd' }, '\0222' }, reg(remote, '*'))
+    equal({ { 'first', '' }, 'V' }, reg(remote, '+'))
+    local messages = exec(remote, [[return vim.fn.execute('messages')]])
+    assert(not messages:find('E319', 1, true), messages)
+  end)
+
+  check('standalone without SSH is unchanged', function()
+    local standalone = editor()
+    setup(standalone)
+    equal('', provider(standalone))
+    equal(true, exec(standalone, [[return vim.g.clipboard == nil]]))
+  end)
+
+  check('off mode also disables the SSH fallback', function()
+    local remote = editor { SSH_CONNECTION = 'test' }
+    setup(remote, 'off')
+    equal('', provider(remote))
+  end)
+
+  check('explicit SSH providers are preserved', function()
+    local remote = editor { SSH_CONNECTION = 'test' }
+    exec(remote, [[vim.g.clipboard = 'osc52']])
+    setup(remote)
+    equal('OSC 52', provider(remote))
+  end)
+
+  check('SSH fallback emits an OSC 52 write, never a read query', function()
+    local remote = editor { SSH_CONNECTION = 'test' }
+    exec(remote, [[
+      _G.writes = {}
+      vim.api.nvim_ui_send = function(text) table.insert(_G.writes, text) end
+    ]])
+    setup(remote)
+    yank(remote, { 'λ雪' }, 'ggyy')
+    equal({ '\027]52;c;' .. vim.base64.encode('λ雪\n') .. '\027\\' }, exec(remote, [[return _G.writes]]))
+    equal({ { 'λ雪' }, 'V' }, reg(remote, '+'))
+    exec(remote, [[vim.cmd 'normal! ggp']])
+    equal({ 'λ雪', 'λ雪' }, exec(remote, [[return vim.api.nvim_buf_get_lines(0, 0, -1, false)]]))
+    equal(1, exec(remote, [[return #_G.writes]]))
+  end)
+
+  check('nested editor copies through the SSH parent to the local terminal', function()
+    local remote = editor { SSH_CONNECTION = 'test' }
+    exec(remote, [[
+      _G.writes = {}
+      vim.api.nvim_ui_send = function(text) table.insert(_G.writes, text) end
+    ]])
+    setup(remote)
+    local remote_socket = exec(remote, [[return vim.fn.serverstart(...)]], temp .. '/remote.sock')
+    local nested = editor { NVIM = remote_socket, SSH_CONNECTION = 'test' }
+    setup(nested)
+    equal('Parent Neovim registers', provider(nested))
+    yank(nested, { 'from inner editor' }, 'ggyy')
+    equal({ { 'from inner editor' }, 'V' }, reg(remote, '+'))
+    equal({ { 'from inner editor' }, 'V' }, reg(nested, '+'))
+    equal({ '\027]52;c;' .. vim.base64.encode('from inner editor\n') .. '\027\\' }, exec(remote, [[return _G.writes]]))
   end)
 
   local child = editor { NVIM = socket, SSH_CONNECTION = 'test' }
@@ -198,6 +284,13 @@ local ok, err = xpcall(function()
     setup(desktop)
     equal('wl-copy', provider(desktop))
     equal(true, exec(desktop, [[return vim.g.clipboard == nil]]))
+  end)
+
+  check('native provider wins for standalone SSH too', function()
+    local remote = editor { SSH_CONNECTION = 'test', PATH = native_dir, WAYLAND_DISPLAY = 'test-display' }
+    setup(remote)
+    equal('wl-copy', provider(remote))
+    equal(true, exec(remote, [[return vim.g.clipboard == nil]]))
   end)
 
   check('parent mode overrides native detection', function()

@@ -110,8 +110,8 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
--- Prefer the system clipboard; nested editors without a native provider share
--- the parent Neovim's registers instead (e.g. Pi's external editor in ToggleTerm).
+-- Prefer native clipboard providers. Over SSH, fall back to OSC 52 copying;
+-- nested editors without a native provider share the parent Neovim's registers.
 -- See doc/clipboard.md for selection rules, overrides, and SSH limitations.
 vim.opt.clipboard = 'unnamedplus'
 require('custom.clipboard').setup()

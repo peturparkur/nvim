@@ -13,8 +13,9 @@ A starting point for Neovim that is:
 ## Custom clipboard behavior
 
 Nested editors (for example Pi's external Neovim inside ToggleTerm) automatically
-share parent registers when no native clipboard provider is detected. Desktop
-clipboard behavior is preserved. See [clipboard setup and SSH limitations](doc/clipboard.md).
+share parent registers when no native clipboard provider is detected. Standalone
+SSH sessions fall back to OSC 52 copying, including yanks of CLI output inside
+ToggleTerm; paste uses an editor-local cache. Desktop behavior is preserved. See [clipboard setup and SSH limitations](doc/clipboard.md).
 
 ## Installation
 
